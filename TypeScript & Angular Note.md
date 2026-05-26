@@ -1,0 +1,432 @@
+# TypeScript & Angular
+
+# TypeScript
+
+## Fundamentals:
+
+- JavaScript: Dynamically Typed
+- TypeScript: Statically Typed
+-> Kiểu dữ liệu của biến phải rõ ràng, kiểm tra ngay từ lúc compile
+- Code JS hiện tại cũng là code TypeScript
+
+## Types:
+
+- Primitive Types, Object, Array, Function
+- any|unknown:
+- any: tắt hoàn toàn kiểm tra dữ liệu của TS -> hạn chế sử dụng
+- unknown: an toàn hơn, cho phép gán bất kỳ giá trị nào cho biến, nhưng bắt buộc phải kiểm tra xem là kiểu gì trước khi thực hiện hành động khác.
+
+```jsx
+// Ví dụ về any
+let dataFromAPI: any = "Hello";
+dataFromAPI.length; // Hợp lệ
+dataFromAPI.toUpperCase(); // Hợp lệ
+
+// Ví dụ về unknown
+let secureData: unknown = "Hello Angular";
+// secureData.toUpperCase(); // ❌ LỖI NGAY: TypeScript không cho phép vì chưa biết chắc nó là string.
+
+// Cách xử lý đúng với unknown (Type Guard cơ bản):
+if (typeof secureData === "string") {
+    console.log(secureData.toUpperCase()); //  Hợp lệ, vì TS đã biết chắc chắn đây là string.
+}
+```
+
+## Union, Intersection, Tuples
+
+### Union:
+
+```tsx
+let userId: string | number;
+
+// Ứng dụng định nghĩa trạng thái của API trong Angular Component
+type RequestStatus = "idle" | "loading" | "success" | "error";
+```
+
+### Intersection
+
+```tsx
+interface Person {
+	name: string;
+	email: string;
+}
+
+interface Employee {
+	employeeId: number;
+	department: string;
+}
+
+type StaffMember = Person && Employee;
+
+const newStaff: StaffMember = {
+	name: "VinhHV",
+	email: "vinhhv28@gmail.com",
+	employeeId: 2026,
+	department: "Team anh Chinh"
+}
+```
+
+### Tuples
+
+Thực chất là 1 array, nhưng có tính nghiệm ngặt hơn:
+- Chiều dài cố định
+- Kiểu dữ liệu ở mỗi index phải chính xác theo thứ tự đã define
+
+```tsx
+let apiResponse: [number, string];
+
+apiResponse = [200, "success"];
+apiResponse = [404, "not found"];
+```
+
+## Interface & Type
+
+### 1. Interface:
+
+- **Mục đích:** Dùng để định nghĩa cấu trúc Obj hoặc Class
+- **Declaration Merging:** Nếu khai báo 2 interface cùng 1 tên → TS tự động merge
+- Trong Angular: để định nghĩa các Modal, Data đại diện cho dữ liệu từ API hoặc cấu trúc trong Data Service
+
+### 2. Type (Type Alias)
+
+- **Mục đích:** Linh hoạt hơn, có thể có PRimirive, Union Types, Intersection Types hoặc Tuples
+- Không thể gộp
+
+→ Ưu tiên dùng Interface cho đến khi bắt buộc phải dùng Type
+
+```jsx
+// --- Ví dụ về Interface ---
+interface User {
+    id: number;
+    name: string;
+}
+
+// Tính năng Declaration Merging (Gộp)
+interface User {
+    role: string; // Tự động gộp vào interface User ở trên
+}
+
+const angularDeveloper: User = {
+    id: 1,
+    name: "DuongNV",
+    role: "Admin"
+};
+
+// --- Ví dụ về Type ---
+type ID = string | number; // Định nghĩa một Union Type linh hoạt
+type Point = { x: number; y: number; };
+```
+
+## Access Modifier
+
+- **public** (mặc định): Có thể truy cập từ bất cư đâu (trong class, class con hoặc bên ngoài instance);
+- **private**: Chỉ có thể truy cập bên trong chính class đó
+- **protected**: Giống như **private**, nhưng cho phép class con được phép truy cập
+- **readonly**: Chỉ cho phép đọc giữ liệu
+
+```tsx
+class ProductService {
+	public apiEndpoint: string = "htts://api....";
+	private secretKey: string = "SUPPER_KEY";
+	protected version: string = "v1";
+	readonly timeout: number = 5000;
+	
+	constructor () {
+		this.timeout = 10000;//Hợp lệ nếu gán trong constructor
+	}
+	
+	changeKey() {
+		this.secretKey = "NEW_KEY";
+		//this.timeout = 2000; => Lỗi không thể gán lại cho thuộc tính readonly
+	}
+}
+```
+
+## Optional Chaining (?.) và Nullish Coalescing (??)
+
+### 1. Optional Chaining - ?.
+
+Nếu đối tượng đứng trước dấu `?.` là `null` hoặc `undefined`, chương trình sẽ lập tức dừng lại và trả về `undefined` thay vì bắn lỗi làm crash ứng dụng.
+
+### 2. Nullish Coalescing - ??
+
+Toán tử này sẽ trả về giá trị phía bên phải **chỉ khi** giá trị phía bên trái là `null` hoặc `undefined`.
+
+```tsx
+interface Company {
+	name: string;
+	address?: {
+		street: string;
+		city?: string;// Có thể có hoặc không
+	}
+}
+
+let staff: Company = {name: "Evotek"};
+
+//Thay vì bị crash lỗi -> biến city sẽ nhận undefined
+let cỉty = staff.address?.city;
+console.log(city);// Output: undefined
+
+let displayCity = staff.address?.city ?? "Hanoi";
+console.log(displayCity); //Output: "Hanoi" do vế trái là undefined
+
+let standardScore = 0;
+console.log(standardScore || 5); // Output: 5 vì 0 là falsy
+console.log(standardScore ?? 5); // Output: 0 vì 0 không phải null/undefined
+```
+
+## Utility Types
+
+Là các công cụ Built-in giúp tái cấu trúc lại các `interface`/`type` có sẵn thành kiểu dữ liệu mới mà không cần viết lại từ đầu.
+Dưới đây là 4 Utility Types cốt lõi : `Partial<T>`, `Pick<T, K>`, `Omit<T, K>`, và `Readonly<T>`.
+
+Mẫu User gốc:
+
+```tsx
+interface User {
+	id: number;
+	username: string;
+	password?: string //Có thể có hoặc không
+	role: "Admin" | "Staff";
+}
+```
+
+### 1. `Partial<T>` (Biến tất cả thành Optional)
+
+`Partial<T>` tạo ra một kiểu dữ liệu mới dựa trên `T`, nhưng biến **tất cả các thuộc tính trở thành không bắt buộc (Optional - có dấu `?`)**.
+
+```tsx
+// Tất cả các fields của User lúc này đều cố ?
+type UpdateUserDto = Partial<User>;
+
+function updateProfile(userId: number, newData: Partial<User> {
+	//Logic cập nhật
+})
+
+updateProfile(1, {email: "newemail@gmail.com"})
+```
+
+### 2. `Pick<T, K>` (Chỉ nhặt ra các trường cần thiết)
+
+```tsx
+// Chỉ lấy ra trường 'id' và 'username' từ User
+type UserSummary = Pick<User, 'id' | 'username'>
+
+const basicInfo: UserSummary = {
+	id: 10,
+	username: "vinhhv",
+	// email: "vinhhv@gmail.com" Lỗi: Field này không được chọn
+}
+```
+
+### 3. `Omit<T, K>` (Loại bỏ các trường không mong muốn)
+
+```tsx
+// Tạo một type mới giống hệ User nhưng không có password
+type UserPublicProfile = Omit<User, 'password'>;
+
+const clientUserData: UserPublicProfile = {
+	id: 1,
+	username: "vinhhv_admin",
+	email: "vinhhv28@gmail.com",
+	role: "Admin",
+	//password: "123" Lỗi: Field này đã bị Omit
+}
+```
+
+### 4. `Readonly<T>` (Biến tất cả thành Chỉ Đọc)
+
+```tsx
+//Biến tất cả các fiels của User thành readonly
+type ImmutableUser = Readonly<User>;
+
+const fixedUser: ImmutableUser = {
+	id: 2,
+	username: "system_bot"
+	email: "bot@system.com",
+	role: "Staff",
+}
+
+// fixedUser.username = "new_bot" Lỗi 
+```
+
+### 5. `Record<K, T>`
+
+```tsx
+// Record<Kiểu_của_key, Kiểu_của_value>
+type DNANucleotide = 'G' | 'C' | 'T' | 'A';
+type RNANucleotide = 'C' | 'G' | 'A' | 'U';
+
+const DNA_TO_RNA_MAP: Record<DNANucleotide, RNANucleotide> = {
+	G: 'C',
+	C: 'G',
+	T: 'A',
+	A: 'U',
+}
+```
+
+## Type Guards
+
+### 1. `typeof` (Primitive Types)
+
+Là toán tử có sẵn của JavaScript. Trong TypeScript, nó được dùng làm Type Guard để kiểm tra các kiểu dữ liệu nguyên thủy cơ bản như: `string`, `number`, `boolean`, `symbol`, `undefined`, `object`, hoặc `function`.
+
+```tsx
+function processInput(value: string | number) {
+	//Chưa dùng được value.toUpperCase() vì có thể value là number
+	if (typeof value === "string") {
+		console.log(value.toUpperCase());
+	} else {
+		console.log(value.toFiexed(2));
+	}
+}
+```
+
+### 2. `instanceof` (Dùng cho Class/Object khởi tạo từ New)
+
+`instanceof` được dùng để kiểm tra xem một đối tượng (instance) có được khởi tạo từ một **Class** cụ thể nào đó hay không. (Không dùng được cho Interface vì Interface sẽ biến mất hoàn toàn khi compile sang JS)
+
+```tsx
+//Khi API trả về, muốn phân biệt lỗi AuthError hay lỗi hệ thống ValidationError
+class AuthError {
+	constructor(public message: string){};
+	logoutUser() {console.log("REdireacting to login...")};
+}
+
+class ValidationError {
+	constructor(public message: string){};
+	showValidationFields(){console.log("Highlighting Error Field")}
+}
+
+function hasError(error: AuthError | ValidationError){
+	if (error instanceof AuthError) {
+		// Xác định ở đây là AuthError
+		error.logoutUser();
+	} else {
+		error.showValidationField();
+	}
+}
+```
+
+### 3. Toán tử `is` (Custom Type Guard / Type Predicate)
+
+```tsx
+interface Admin {
+	name: string;
+	messageUsers: () => void;
+}
+
+interface Staff {
+	name: string;
+	viewReports: () => void;
+}
+
+// Viêt Custome Type Guard bằng toán tử 'is'
+function isAdmin(user: Admin | Staff): user is Admin {
+	return (user as Admin).manageUsers !== undefined;
+}
+
+function handleUserSession(user: Admin | Staff) {
+	if (isAdmin(user)) {
+		user.messageUsers();
+	} else {
+		user.viewReports();
+	}
+}
+```
+
+# Angular
+
+Là một Framwork open source, được phát triển bởi google. Thường được dùng để xấy dựng SPA với hiệu suất cao, linh họa và có khả năng mở rộng quy mô lớn.
+
+- Sử dụng TypeScript
+- Cấu trúc Component
+- Hệ sinh thái toàn diện: Forms, Routing, state management và API Interaction mà không cần cài đặt quá nhiều thư
+
+## Single Page Application - SPA
+
+Là một **kiến trúc web** nơi mà toàn bộ ứng dụng thực chất chỉ chạy trên **duy nhất một file HTML.** 
+
+|  | Multi Page Application | Single Page Application |
+| --- | --- | --- |
+| Cách chạy | Bấm link → Request lên server → server xử lý → tạo file HTML mới hoàn toàn | Lần đầu tiên truy cập → trình duyệt tải duy nhất index.html  + code JS(Angular) → không cần tải lại trang |
+| Trải nghiệm | Cần reload để tải lại toàn bộ trang từ đầu | Giống như đang dùng 1 phần mềm cài sẵn |
+
+## How Angular Works
+
+- Step 1: Khởi động file gốc  `index.html`
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>MyAngularApp</title>
+</head>
+<body>
+  <app-root></app-root> 
+</body>
+</html>
+```
+
+- Step 2: Kích hoạt file mồi  `main.ts`
+Các files JavaScript đã được Angular biên dịch sẵn (bundles) sẽ được tải vào trình duyệt → File chạy đầu tiền là `main.ts` (hàm bootstrap).
+- Step 3: Render component và quản lý DOM (Component Lifecyle)
+Angular tìm thẻ `<app-root>` đang nằm chờ sẵn trong file `index.html`. Sau đó, đọc file giao diện (HTML Template) và logic (TypeScript) của `AppComponent` để tạo ra mã HTML thực tế, rồi **inject** vào bên trong thẻ `<app-root>`. Lúc này người dùng mới chính thức nhìn thấy giao diện hiển thị.
+- Step 4: Cơ chế Data Bìding & Change Detection
+Khác với JavaScript thuần (phải tự dùng `document.getElementById` để thay đổi trên màn hình), Angular tự động đồng bộ hóa dữ liệu giữa file TypeScript (Logic) và file HTML (Giao diện).
+    - **Property Binding / Interpolation ( `value` ):** Khi thay đổi một biến trong file TypeScript, Angular sẽ tự động cập nhật giá trị đó lên màn hình HTML ngay lập tức.
+    - **Event Binding (`(click)="doSomething()"`):** Khi người dùng bấm nút trên HTML, trình duyệt sẽ gọi ngay hàm tương ứng trong file TypeScript để xử lý logic.
+    - **Change Detection Loop:** Angular có một vùng quản lý đặc biệt (ngầm định qua thư viện `zone.js` hoặc cơ chế `Signals` ). Mỗi khi có sự kiện xảy ra (click chuột, gõ phím, API trả về dữ liệu), Angular sẽ quét qua toàn bộ cây Component để kiểm tra xem dữ liệu có thay đổi không. Nếu có, Angular sẽ cập nhật lại giao diện (DOM) một cách tối ưu nhất.
+
+## Standalone Component
+
+### 1. Tại sao trước đó cần `app.module.ts`?
+
+Trong các phiển bản cũ, compiler của Angular không thể hiểu Component một các độc lập → Cần 1 người quản lý để khai báo và gom nhóm → **NgModule** (`app.module.ts`).
+
+- Nếu tạo ra một `ComponentA`, không thể dùng nó ngay.Bắt buộc phải vào `app.module.ts` để khai báo trong mảng `declarations`.
+
+```tsx
+// KIẾN TRÚC CŨ (Bắt buộc phải có NgModule trung gian)
+@NgModule({
+	declarations: [AppComponent, UserComponent, OrderComponent], //Khai báo 
+	imports: [BrowserModule, FormsModule], //Import các module bổ trợ
+	bootstrap: [AppComponent];
+})
+
+export class AppModule{}
+```
+
+→ Nhược điểm:
+
+1. Dư thừa và cồng kềnh (Boilerplate code): Cứ mỗi lần tạo file → đăng ký thủ công vào file Module
+2. Khó học 
+3. Ảnh hướng để hiệu năng (Tối ưu hóa dung lượng - Tree Shaking): Vì các thành phần bị gom chung vào Module → Bundler đóng gói code rất khó nhận biết Componenet nào thực sự không dùng đến để xóa
+
+### 2. Standalone Componenet
+
+Là một kiến truc cho phép Component quản lý chính nó.
+
+→ Component không cần `app.modules.ts` → có thể import  trực tiếp những gì Componenet cần dùng.
+
+```tsx
+@Component({
+	selector: 'app-user',
+	standalone: true,
+	imports: [CommonModule, FormsModule, RouterLink],
+	template: `
+    <div *ngIf="isLoggedIn">
+      <input [(ngModel)]="username" />
+      <a routerLink="/profile">Xem hồ sơ</a>
+    </div>
+})
+
+export class UserComponnet
+```
+
+## Component Decorator
+
+Bắt dầu bằng `@` , bản chất là một hàm dùng để cung cấp **Metadata**, khai báo cho compiler class bên dưới là một Component 
+
+### 1. **`selector`**
