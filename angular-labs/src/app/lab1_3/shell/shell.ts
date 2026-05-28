@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 // Đường dẫn đến 2 components
 import { Navbar } from '../navbar/navbar';
 import { Sidebar } from '../sidebar/sidebar';
+import { Highlight } from '../../lab2_1/directives/hover-highlight';
 
 /**
  * Khi Angular biên dịch một Standalone Component (vd: ShellComponent),
@@ -25,7 +26,7 @@ import { Sidebar } from '../sidebar/sidebar';
   selector: 'app-shell',
   standalone: true,
   // Thêm các component vào đây
-  imports: [Navbar, Sidebar],
+  imports: [Navbar, Sidebar, Highlight],
   templateUrl: './shell.html',
   styleUrl: './shell.css',
 })

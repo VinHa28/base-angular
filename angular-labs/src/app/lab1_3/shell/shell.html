@@ -4,8 +4,24 @@
     <app-sidebar></app-sidebar>
     <main class="p-5">
       <div>
-        <h2>This is my Lab1.3</h2>
-        <p>Here is main content of shell</p>
+        <h2
+          appHighlight
+          [highlightColor]="'#bbf7d0'"
+          class="bg-white p-6 rounded-lg shadow cursor-pointer"
+        >
+          Test Directive hover của lab2.1
+        </h2>
+        <div appHighlight class="p-4 my-2 border rounded cursor-pointer">
+          Hàng chữ này sẽ đổi sang nền VÀNG (mặc định) khi rê chuột vào.
+        </div>
+
+        <div
+          appHighlight
+          [highlightColor]="'lightblue'"
+          class="p-4 my-2 border rounded cursor-pointer"
+        >
+          Hàng chữ này sẽ đổi sang nền XANH NHẠT khi rê chuột vào nhờ cơ chế @Input.
+        </div>
       </div>
     </main>
   </div>
