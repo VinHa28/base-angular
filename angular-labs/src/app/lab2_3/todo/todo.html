@@ -1,0 +1,16 @@
+<div>
+  <div class="w-full flex justify-between">
+    <input [(ngModel)]="newTodo" placeholder="Enter task..." class="border px-2 w-full" />
+    <button (click)="addTodo()" class="border px-2 py-1 bg-blue-400 text-white rounded">Add</button>
+  </div>
+  <ul class="mt-2">
+    @for (todo of todos(); track todo.id) {
+      <li class="min-w-full flex justify-between">
+        {{ todo.title }}
+        <button (click)="deleteTodo(todo.id)" class="font-bold cursor-pointer">x</button>
+      </li>
+    } @empty {
+      <p>There are no task available!</p>
+    }
+  </ul>
+</div>

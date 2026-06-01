@@ -4,7 +4,9 @@ import { Component } from '@angular/core';
 import { Navbar } from '../navbar/navbar';
 import { Sidebar } from '../sidebar/sidebar';
 import { Highlight } from '../../lab2_1/directives/hover-highlight';
-import { DashboardComponent } from '../../lap2_2/dashboard/dashboard';
+import { DashboardComponent } from '../../lab2_2/dashboard/dashboard';
+import { Todo } from '../../lab2_3/todo/todo';
+import { ProductList } from '../../lab2_3/product-list/product-list';
 
 /**
  * Khi Angular biên dịch một Standalone Component (vd: ShellComponent),
@@ -27,8 +29,7 @@ import { DashboardComponent } from '../../lap2_2/dashboard/dashboard';
   selector: 'app-shell',
   standalone: true,
   // Thêm các component vào đây
-  imports: [Navbar, Sidebar, Highlight, DashboardComponent],
+  imports: [Navbar, Sidebar, Highlight, DashboardComponent, ProductList],
   templateUrl: './shell.html',
-  styleUrl: './shell.css',
 })
 export class Shell {}

@@ -1,0 +1,61 @@
+<div class="p-5">
+  <div class="controls">
+    <label>
+      <input
+        type="radio"
+        [checked]="isUsingCorrectTrack()"
+        (change)="isUsingCorrectTrack.set(!isUsingCorrectTrack())"
+      />
+      track product.id
+    </label>
+    <br />
+    <label>
+      <input
+        [checked]="!isUsingCorrectTrack()"
+        (change)="isUsingCorrectTrack.set(!isUsingCorrectTrack())"
+        type="radio"
+      />
+      track $index
+    </label>
+  </div>
+
+  <div class="actions" style="margin-bottom: 20px">
+    <button
+      (click)="suffleProducts()"
+      class="p-2.5 cursor-pointer bg-blue-400 rounded-md text-white mr-3"
+    >
+      Tráo đổi vị trí danh sách
+    </button>
+    <button
+      (click)="updateRandomProduct()"
+      class="p-2.5 cursor-pointer bg-blue-400 rounded-md text-white mr-3"
+    >
+      Cập nhật 1 sản phẩm ngẫu nhiên
+    </button>
+    <button
+      (click)="generateProducts()"
+      class="p-2.5 cursor-pointer bg-blue-400 rounded-md text-white"
+    >
+      Reset danh sách mới
+    </button>
+  </div>
+
+  <div
+    class="grid-container"
+    style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px"
+  >
+    @if (isUsingCorrectTrack()) {
+      @for (product of products(); track product.id) {
+        <app-product-card [product]="product"></app-product-card>
+      } @empty {
+        <p>Product list is empty</p>
+      }
+    } @else {
+      @for (product of products(); track $index) {
+        <app-product-card [product]="product"></app-product-card>
+      } @empty {
+        <p>Product list is empty</p>
+      }
+    }
+  </div>
+</div>
