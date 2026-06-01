@@ -4,6 +4,7 @@ import { Component } from '@angular/core';
 import { Navbar } from '../navbar/navbar';
 import { Sidebar } from '../sidebar/sidebar';
 import { Highlight } from '../../lab2_1/directives/hover-highlight';
+import { DashboardComponent } from '../../lap2_2/dashboard/dashboard';
 
 /**
  * Khi Angular biên dịch một Standalone Component (vd: ShellComponent),
@@ -26,7 +27,7 @@ import { Highlight } from '../../lab2_1/directives/hover-highlight';
   selector: 'app-shell',
   standalone: true,
   // Thêm các component vào đây
-  imports: [Navbar, Sidebar, Highlight],
+  imports: [Navbar, Sidebar, Highlight, DashboardComponent],
   templateUrl: './shell.html',
   styleUrl: './shell.css',
 })

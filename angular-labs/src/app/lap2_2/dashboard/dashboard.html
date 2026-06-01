@@ -1,0 +1,26 @@
+<div>
+  <div class="d-flex justify-content-center gap-2 mb-4">
+    <button
+      (click)="startChildTimer()"
+      class="px-4 py-1 bg-green-400 text-white mr-3 rounded-md cursor-pointer"
+    >
+      Start
+    </button>
+    <button
+      (click)="pauseChildTimer()"
+      class="px-4 py-1 bg-yellow-400 text-white mr-3 rounded-md cursor-pointer"
+    >
+      Pause
+    </button>
+    <button
+      (click)="resetChildTimer()"
+      class="px-4 py-1 bg-blue-400 text-white mr-3 rounded-md cursor-pointer"
+    >
+      Reset
+    </button>
+  </div>
+
+  <hr />
+
+  <app-countdown></app-countdown>
+</div>
