@@ -1,59 +1,21 @@
-# AngularLabs
+# Lab 2.5:
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.12.
+## Câu hỏi:
 
-## Development server
+1. Hãy giải thích hiện tượng xảy ra ở Component Con khi bấm Nút 1 (Sửa trực tiếp thuộc tính) và Nút 2 (Gán Object mới). Tại sao ở Nút 1, dữ liệu JSON trên HTML vẫn đổi nhưng dòng chữ thông báo logic trong ngOnChanges lại đứng yên?
+2. Dựa vào kiến thức về Vùng nhớ Tham chiếu (Reference Type) trong JavaScript và cơ chế kiểm tra dữ liệu thay đổi của Angular, hãy nêu giải pháp chuẩn khi muốn thêm một phần tử mới vào một mảng @Input() list: string[] để ngOnChanges có thể bắt được sự kiện.
 
-To start a local development server, run:
+## Trả lời
 
-```bash
-ng serve
-```
+Khi bấm nút “Tạo Object mới - Good Practice” → statusMessage ở component con mới thay đổi
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+1. Giải thích:
+- Khi bấm nút 1 (Sửa trực tiếp) thay đổi JSON trên HTML mà `ngOnChanges`  đứng yên vì:
+- Angular kiểm tra dữ liệu của các thuộc tính `@Input()`  có thay đổi không với `===` 
+- userProfile là Object → kiểu tham chiếu → `===`  so sánh địa chỉ vùng nhớ 
+→ khi thay đổi trực tiếp địa chỉ vùng nhớ vẫn giữ nguyên 
+→ `ngOnChanges`  đứng yên
+- HTML vẫn thay đổi do cơ chế Change Detection
+- Khi bấm nút 2 (Gán Object mới) → object mới được tạo → so sánh địa chỉ vùng nhớ khác nhau → thuộc tính `@Input()`  thay đổi → `ngOnChanges()`  chạy
+1. Khi muốn thêm một phần tử mới vào một mảng `@Input() list: string[]` để `ngOnChanges`  có thể bắt được sự kiện:
+- Thay vì dùng push() chỉ thêm phần tử nhưng địa chỉ vùng nhớ của mảng giữ nguyên → sử dụng toán tử Spread `...` → `this.list = [...this.list, newItem]`
