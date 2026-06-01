@@ -304,3 +304,47 @@ this.renderer.setStyle(this.divRef.nativeElement, 'color', 'blue');
 
 - Mục địch: Thêm, xóa, dichuyeenr hoặc sắp xếp lại các phần tử trên giao diện tại thời điểm runtime
 - Các hàm quan trọng: `createEmbeddedView(templateRef)` , `createCoponent(conponentType)` , `clear()`
+
+## Angular 17+ Control Flow
+
+Từ Angular 17 trở đi, cơ chế **Control Flow** - thường được gọi là Built-in Control Flow được giới thiệu nhằm thay thế hoàn toàn các cấu trúc cũ dựa trên Structural Directives như `*ngFor` và `*ngIf`
+
+### 1. Thuật toán Diffing của thuộc tính `track` trong vòng lặp `@for`
+
+Trong `@for` mới, thuộc tính `track`  là bắt buộc khác với trước đây `trackBy`  là tuy trọn trong `*ngFor` 
+
+```tsx
+@for (item of items; track item.id) {
+	<li>{{item.name}}</li>
+}
+```
+
+Cơ chế hoạt động của Diffing
+
+1. Indentify Tracking:
+- Angular sử dụng biểu thức được cung cấp trong track (`item.id`) để tạo ra một hash code hoặc định danh cho từng phần tử DOM được sinh ra
+2. Two-pointer Comparison: 
+Thay vì xóa toàn bộ DOM cũ và render lại (mặc đinh nếu không track), Diffing sẽ quét danh sách mới và đối chiếu định danh với danh sách cũ:
+- Identity Match: nếu `id` tồn tại ở cả 2 danh sách → Angular không xóa bỏ phần tử DOM đó. Nếu chỉ thay đổi vị trí → chỉ dùng API DOM (`Mode.inserrtBefore`) để di chuyển (reorder)
+- Removal: Nếu `id` không còn xuất hiện ở danh sách mới → DOM node đó sẽ bị hủy ngay lập tức
+
+### 2. Cơ chế hiển thị tạm thời với `@empty`
+
+```tsx
+@for (product of products; track product.id) {
+	<app-product-card></app-product-card>
+} @empty {
+	<div>
+		<img src="no-data.png"/>
+		<p>Không tìm thấy sản phẩm nào</p>
+	</div>
+}
+```
+
+Cơ chế hoạt động:
+
+1. Zero-length Evaluation:
+- Khi mang được cập nhật qua Change Detection, Angular sẽ kiểm tra thuộc tính `.length` - hoặc tương đương nếu là Iterable
+2. DOM Lifecyle Management:
+-  Khi mảng `length > 0` : `@empty`  hoàn toàn bị ẩn → Không tồn tại trong DOM
+- Khi `length === 0`  hoặc `null/undefined`  → dọn dẹp các DOM ndoe do khối `@for`  quản lý → đưa cấu trúc template của `@empty vào`  giao diện
