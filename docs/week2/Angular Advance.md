@@ -271,7 +271,7 @@ export const TabsComponent implements AfterContentInit {
 </app-tabs>
 ```
 
-## `ElementRef` , `TemplateRef` & `VieContainerRef`
+## `ElementRef` , `TemplateRef` & `ViewContainerRef`
 
 ### 1. `ElementRef` - “Viên gạch”
 
@@ -348,3 +348,36 @@ Cơ chế hoạt động:
 2. DOM Lifecyle Management:
 -  Khi mảng `length > 0` : `@empty`  hoàn toàn bị ẩn → Không tồn tại trong DOM
 - Khi `length === 0`  hoặc `null/undefined`  → dọn dẹp các DOM ndoe do khối `@for`  quản lý → đưa cấu trúc template của `@empty vào`  giao diện
+
+## Lifecycle Hooks
+
+### Thứ tự chạy
+
+1. `constructor()` : Hàm khởi tạo của Class - không phỉa Lifecycle hook nhưng chạy đầu tiên: Để inject các Service. Lúc này `@Input()` chưa có dữ liệu.
+2. `ngOnChanges()` : Chạy đầu tiên ngay sau khi các thuộc tính `@Input()`  được liên kết dữ liệu thành công.
+3. `ngOnInit()` : Khởi tạo component. Lúc này `@Input()`đã sẵn sàng
+4. `ngDoCheck()` : Chạy ngay sau `ngOnInit` để bắt đầu chu kỳ Chang Detection đầu tiên
+5. `ngAfterContentInput()` : Chạy ngay sau khi Angular chèn lội dung từ bên ngoài vào componenet qua `<ng-content></ng-content>` (Content projection)
+6. `ngAfterContentChecked()` : Chạy sau khi Angular kiểm tra xong phần nội dung vừa thêm vào component.
+7. `ngAfterViewInit()` : Chạy sau khi Angular khởi tạo xong giao diện HTML của chính nó và components con.
+8. `ngAferViewChecked()` : chạy sau khi Angular kiểm tra xong các Vierw của component và components con
+9. Lặp lại: `ngOnChanges()`  → `ngOnInit()` → `ngDoCheck()` → `ngAfterContentChecked()` → `ngAferViewChecked()`
+10. `ngOnDestroy()` : chạy ngay trước khi Angular hủy bỏ component
+
+### AN TOÀN để call API
+
+Dùng `ngOnInit()` :
+
+- Tại thời điểm này `@Input()`  đã được nhận đầy đủ dữ liệu.
+- Chỉ chạy 1 lần duy nhất → tránh call vô hạn
+
+Tại sao không chọn hàm khác:
+
+- `constructor()` : Các thuộc tính `@Input`  chưa được khởi tạo → dữ liệu bị undefined
+- `onChanges()` : Sẽ bị gọi lại mỗi gì `@Input`  thay đổi → phải bắt điều kiện kỹ càng
+- `ngDoCheck()` , `ngAfterViewChecked` : Không gọi API ở đây vì chạy liên tục
+
+### Khi nào dữ liệu DOM sẵn sàng?
+
+- Tại `ngAfterViewInit()`  → toàn bộ file HTML của components đã được render xong trên trình duyệt
+- Nơi duy nhất an toàn để sử dụng  `@ViewChild` nhằm lấy các `ElementRef`
