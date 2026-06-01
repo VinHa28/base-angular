@@ -1,0 +1,17 @@
+<div>
+  <div class="flex items-center gap-4">
+    <button
+      (click)="editDirectly()"
+      class="py-2 px-4 bg-blue-400 text-white cursor-pointer rounded-xl"
+    >
+      Sửa trực tiếp - Bad Practice
+    </button>
+    <button
+      (click)="createNewObject()"
+      class="py-2 px-4 bg-blue-400 text-white cursor-pointer rounded-xl"
+    >
+      Tạo Object mới - Good Practice
+    </button>
+  </div>
+  <app-user-profile [userProfile]="parentUser"></app-user-profile>
+</div>
