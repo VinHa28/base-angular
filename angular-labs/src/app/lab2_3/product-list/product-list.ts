@@ -15,7 +15,7 @@ export class ProductList {
   protected Math = Math;
 
   constructor() {
-    this.generateProducts();
+    // this.generateProducts();
   }
 
   generateProducts() {
