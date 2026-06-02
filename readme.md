@@ -31,3 +31,15 @@ Tại sao dữ liệu được nhét từ ngoài vào qua `<ng-content>` luôn b
 - Tại thời điểm này, DOM lồng từ bên ngoài (`<app-tab-item>`) chưa được xử lý vào trong vị trí của thẻ `<ng-content>` → `@ContentChild` không thể lấy được  phần tử nào để gán vào `ElementRef`, dẫn tới giá trị của `tabItem` luôn là `undefined`.
 2. Tại sao hàm `ngAfterViewInit`cũng không phải là nơi lý tưởng nhất để bắt đầu xử lý dữ liệu này?
 - Sai mục đích`ngAfterContentInit` là để báo hiệu toàn bộ các content được nhét từ bên ngoài vào qua **`<ng-content>`** đã được xử lý và sẵn sàng. Trong khi đó, `ngAfterViewInit` lại là báo hiệu giao diện View Template của chính component đó vẽ xong.
+
+# Lab 2.8
+### Câu hỏi:
+Hàm `ngAfterContentChecked` chạy khi nào? Tại sao nó lại đáp ứng được việc theo dõi sự thay đổi dữ liệu liên tục tốt hơn hàm ngAfterContentInit?
+### Trả lời:
+1. Hàm `ngAfterContentChecked` chạy ngay sau `ngAfterContentInit` ở lần khởi tạo đầu tiên. Sau đó, tự động chạy lại liên tục trong tất cả các chu kỳ Change Detection. Bản chất: cứ khi nào có sự kiện có khả năng làm biến đổi dữ liệu truyền vào `<ng-content>` → hàm này chạy lại ở component con
+2. So sánh với `ngAftercontentInit` 
+| Đặc điểm | `ngAfterContentInit` | `ngAfterContentChecked` |
+| --- | --- | --- |
+| Tần xuất | Chạy duy nhất 1 lần trong component lifecycle | Chạy nhiều lần theo mọi chu kỳ Change Detection |
+| Phản ứng | Nếu sau khi render, component cha có sự kiện hàm này không chạy lại | Lập tức bắt được DOM mới để tính toán lại layout |
+| Ứng dụng | Thiết lập cấu hình ban đầu | Phù hợp cho các tác vụ đo đạc kích thước, giao diện động |
