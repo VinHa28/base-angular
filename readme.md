@@ -22,3 +22,12 @@ Giải thích điều gì sẽ xảy ra với hiệu năng của toàn bộ ứn
 1. Nếu người dùng thực hiện bật/tắt liên tục 50 lần mà không xóa tiến trình chạy ngầm, hệ thống sẽ rơi vào tình trạng ****Memory Leak ****
 - Sẽ có 50 tiến trình chạy ngầm của `setInterval` cùng tồn tại song song trong nhớ RAM và chạy độc lập.
 - Tab Console sẽ in ra liên tục thông báo  50 log/giây
+
+# Lab 2.7
+### Câu hỏi:
+Tại sao dữ liệu được nhét từ ngoài vào qua `<ng-content>` luôn bị undefined ở hàm `ngOnInit`, và tại sao hàm `ngAfterViewInit`cũng không phải là nơi lý tưởng nhất để bắt đầu xử lý dữ liệu này?
+### Trả lời:
+1. dữ liệu được truyền qua `<ng-content>`  luôn bị undefined ở `ngOnInit`  vì `ngOnInit` chạy khi Angular chỉ mới khởi tạo xong các thuộc tính `@Input` nội bộ của chính `AppTabsComponent` 
+- Tại thời điểm này, DOM lồng từ bên ngoài (`<app-tab-item>`) chưa được xử lý vào trong vị trí của thẻ `<ng-content>` → `@ContentChild` không thể lấy được  phần tử nào để gán vào `ElementRef`, dẫn tới giá trị của `tabItem` luôn là `undefined`.
+2. Tại sao hàm `ngAfterViewInit`cũng không phải là nơi lý tưởng nhất để bắt đầu xử lý dữ liệu này?
+- Sai mục đích`ngAfterContentInit` là để báo hiệu toàn bộ các content được nhét từ bên ngoài vào qua **`<ng-content>`** đã được xử lý và sẵn sàng. Trong khi đó, `ngAfterViewInit` lại là báo hiệu giao diện View Template của chính component đó vẽ xong.

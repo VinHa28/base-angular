@@ -9,7 +9,7 @@ import { Todo } from '../../lab2_3/todo/todo';
 import { ProductList } from '../../lab2_3/product-list/product-list';
 import { RatingDashboard } from '../../lab2_4/rating-dashboard/rating-dashboard';
 import { UserProfileContainer } from '../../lab2_5/user-profile-container/user-profile-container';
-import { ChatContainer } from '../../lap2_6/chat-container/chat-container';
+import { ChatContainer } from '../../lab2_6/chat-container/chat-container';
 
 /**
  * Khi Angular biên dịch một Standalone Component (vd: ShellComponent),

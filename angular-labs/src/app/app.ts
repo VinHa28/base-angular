@@ -1,9 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Shell } from './lab1_3/shell/shell';
+import { Dashboard } from './lab2_7/dashboard/dashboard';
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Shell],
+  imports: [RouterOutlet, Dashboard],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
