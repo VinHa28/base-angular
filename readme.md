@@ -37,7 +37,8 @@ Tại sao dữ liệu được nhét từ ngoài vào qua `<ng-content>` luôn b
 Hàm `ngAfterContentChecked` chạy khi nào? Tại sao nó lại đáp ứng được việc theo dõi sự thay đổi dữ liệu liên tục tốt hơn hàm ngAfterContentInit?
 ### Trả lời:
 1. Hàm `ngAfterContentChecked` chạy ngay sau `ngAfterContentInit` ở lần khởi tạo đầu tiên. Sau đó, tự động chạy lại liên tục trong tất cả các chu kỳ Change Detection. Bản chất: cứ khi nào có sự kiện có khả năng làm biến đổi dữ liệu truyền vào `<ng-content>` → hàm này chạy lại ở component con
-2. So sánh với `ngAftercontentInit` 
+2. So sánh với `ngAftercontentInit`
+
 | Đặc điểm | `ngAfterContentInit` | `ngAfterContentChecked` |
 | --- | --- | --- |
 | Tần xuất | Chạy duy nhất 1 lần trong component lifecycle | Chạy nhiều lần theo mọi chu kỳ Change Detection |
