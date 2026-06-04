@@ -1,0 +1,8 @@
+<div>
+  <span>Số lượng task hiện tại là: {{ taskCount }}</span>
+  <ul class="list-disc">
+    @for (task of tasks; track $index) {
+      <li>{{ task }}</li>
+    }
+  </ul>
+</div>
