@@ -20,9 +20,7 @@ export class CartLisst {
   private cartService = inject(CartService);
   cartItems = this.cartService.cartItems;
 
-  constructor() {
-    this.cartItems.set(MOCK_ITEMS);
-  }
+  constructor() {}
   totalQuantity = computed(() => this.cartItems().reduce((sum, item) => sum + item.quantity, 0));
   subtotal = computed(() =>
     this.cartItems().reduce((sum, item) => sum + item.price * item.quantity, 0),

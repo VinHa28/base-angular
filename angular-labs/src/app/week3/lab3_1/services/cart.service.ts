@@ -1,12 +1,42 @@
-import { Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { CartItem } from '../models/cart.model';
+import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CartService {
-  cartItems = signal<CartItem[]>([]);
-  constructor() {}
+  private platformId = inject(PLATFORM_ID);
+
+  private isBrowser = isPlatformBrowser(this.platformId);
+
+  cartItems = signal<CartItem[]>(this.loadFromStorage());
+
+  constructor() {
+    if (this.isBrowser) {
+      const stored = this.loadFromStorage();
+
+      this.cartItems.set(stored.length > 0 ? stored : this.getMockData());
+
+      effect(() => {
+        localStorage.setItem('cart', JSON.stringify(this.cartItems()));
+      });
+    }
+  }
+
+  private loadFromStorage(): CartItem[] {
+    if (!this.isBrowser) return [];
+    const stored = localStorage.getItem('cart');
+    return stored ? JSON.parse(stored) : [];
+  }
+
+  private getMockData(): CartItem[] {
+    return [
+      { id: 1, name: 'Bia 333', price: 8000, quantity: 1 },
+      { id: 2, name: 'Bia Heineken', price: 13500, quantity: 2 },
+      { id: 3, name: 'Bia Tiger Bạc', price: 14000, quantity: 1 },
+    ];
+  }
 
   addProduct(newProduct: CartItem): void {
     this.cartItems.update((currentCartItems) => {
