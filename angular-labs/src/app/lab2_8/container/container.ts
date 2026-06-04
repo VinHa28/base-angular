@@ -7,7 +7,7 @@ import { DynaAccordion } from '../dyna-accordion/dyna-accordion';
   imports: [DynaAccordion],
   template: `
     <div class="mt-5 mx-auto flex flex-col justify-center items-center">
-      <div>
+      <div class="mb-5">
         <button
           (click)="addTextContent()"
           class="text-white py-2 px-3 rounded-xl cursor-pointer hover:opacity-75 bg-blue-500"
@@ -24,7 +24,12 @@ import { DynaAccordion } from '../dyna-accordion/dyna-accordion';
 
       <app-dyna-accordion>
         @for (text of textList; track $index) {
-          <p #contentParam class="py-2 border-b-1 m-h-10">{{ text }}</p>
+          <p
+            #contentParam
+            class="text-sm text-gray-600 px-3.5 py-2.5 border-l-[3px] border-blue-400 bg-blue-50/60 rounded-r-md m-0"
+          >
+            {{ text }}
+          </p>
         }
       </app-dyna-accordion>
     </div>
