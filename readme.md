@@ -44,3 +44,24 @@ Hàm `ngAfterContentChecked` chạy khi nào? Tại sao nó lại đáp ứng đ
 | Tần xuất | Chạy duy nhất 1 lần trong component lifecycle | Chạy nhiều lần theo mọi chu kỳ Change Detection |
 | Phản ứng | Nếu sau khi render, component cha có sự kiện hàm này không chạy lại | Lập tức bắt được DOM mới để tính toán lại layout |
 | Ứng dụng | Thiết lập cấu hình ban đầu | Phù hợp cho các tác vụ đo đạc kích thước, giao diện động |
+
+# Lab2.9
+### Câu hỏi:
+
+ExpressionChangedAfterItHasBeenCheckedError khi bạn cố tình đổi giá trị hiển thị trong hàm ngAfterViewChecked? Cơ chế bảo vệ dữ liệu của Angular hoạt động như thế nào?
+
+### Trả lời
+
+1. ExpressionChangedAfterItHasBeenCheckedError: Sau khi Angular đã render view xong
+→ `ngAfterViewChecked()`  chạy
+→ thay đổi giá chị binding (`loadingState`) đã được check trước đó 
+→ kiểu “trước khi check là 0, sau check lại là 1” mà view đã render xong r 
+→ lỗi
+→ cách fix:
+- bắt chạy detect change thêm một lần nữa với method  `detectChange()`  của `ChangeDetectorRef` (lưu ý ngAfterChange chạy vô tận nếu detectChange liên tục → cần bắt điều kiện `if` khi giá trị `loadingState` thay đổi)
+- sử dụng `setTimeout` vì Zone.js sẽ báo các task bất đồng bộ cho Angular → trigger Change Detection
+- sử dụng Signal (hoạt động gần như state của React nhưng chỉ thay đổi UI phụ thuộc vào singal không phải rerender lại toàn bộ component) 
+2. Cơ chế bảo vệ của Angular:
+Dữ liệu (Component) → Template → DOM
+- ở dev mode Angular chạy 2 lượt, lượt 1 đọc dữ liệu → vẽ ra DOM. Lượt 2 xem giá trị thực tế ở DOM có khớp với giá trị trong code không → nếu khác sẽ báo lỗi cảnh báo
+- Tầm quan trọng: tránh vòng lặp Dữ liệu đổi → DOM đổi → kích hoạt lifecycle → dữ liệu lại đổi. Đảm bảo những gì người dùng nhìn thấy là những gì logic code đang chạy.
