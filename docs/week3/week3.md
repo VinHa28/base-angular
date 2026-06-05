@@ -125,3 +125,153 @@ Sự ra đời của Signals → đánh giấu dịch chuyển về mặt kiến
 Mô hình cũ với `Zone.js` : Giống như bảo vệ đi kiểm tra từng phòng trong toàn nhà xem có ai đổi đồ đạc không
 
 Mô hình mới `Signals` : chỉ phòng nào có sự thay đổi thì báo ngay tại phòng đó
+
+# 2. Dependency Injection (DI) & Services
+
+## 2.1 Dependency Injection - DI
+
+DI là một design partten mà trong đó một class không tự khởi tạo các dependencies của nó, mà yêu cầu inject từ một bên ngoài vào.
+
+Ví dụ trực quan:
+
+- Khi muốn tạo class `Car` → Cần động cơ class `Engine` để chạy
+- Thông thường class `Car` tự tìm cách tạo ra instance `Engine` . Nếu trong tương lại muốn thay đổi loại động cơ (ví dụ từ xe xăng → xe điện) → phải sử code trực tiếp bên trong class `Car`
+- Sử dụng Dependency Injection: `Car` không tự tạo động cơ, thay vào đó động cơ sẽ được ‘inject’ vào class `Car`  từ bên ngoài → dễ dàng thay động cơ khác nhau và không cần thay đổi cấu trúc của `Car`
+
+Trong Angular, DI được gọi là **Angular Injector.** Khi một Component hoặc Service yêu cầu một dependency → Angular Injector đứng ra tìm kiếm, khởi tạo và inject instance đó vào vị trị cần thiết.
+
+### Tại sao không được lạm dụng `new` bên trong Component?
+
+Ví dụ khi cần sử dụng `UserService` , việc sử dụng `private userService = new UserService()` bên trong Componenet được coi là **Anti-parttern (Bad practice)** vì:
+
+- **Tight Coupling:** Component sẽ phụ thuộc hoàn toàn vào structure của `UserService` → nếu `UserService` thay đổi contructor() → phải tìm tất cả Component có `new UserService()` để sửa
+- **Testing Block:** khi viết Unit Test cho Component, cần giả lập Mock Data dữ liệu từ Service để tránh gọi API thật → nếu dùng `new` , Service không thể thay thế bằng một MockService được
+- **State Sharing:** mỗi lần gọi `new UserService()` , JS sẽ cấp phất 1 vùng nhớ mới cho một **instance** mới → mất đi khả năng chia sẻ data chung giữa các Components (VD: lưu thông tin cart, user đăng nhập)
+- 
+
+## 2.2 Services
+
+Service trong Angular là một class TypeScript, cho phép inject một instance của class đó như một dependency.
+
+### **Các loại Service:**
+
+- **Data clients:** trừu tượng hóa việc lấy API
+- **State management**
+- **Authentication & Authorization**
+- **Logging & Error handling**
+- **Event handing & dispatch**
+- **Utility functions**
+
+```tsx
+//VD:
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class AnalyticsLogger {
+  trackEvent(category: string, value: string) {
+    console.log('Analytics event logged: ', {
+      category,
+      value,
+      timestamp: new Date().toISOString(),
+    });
+  }
+}
+
+//Use
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { AnalyticsLogger } from './analytics-logger';
+
+@Component({
+  selector: 'app-navbar',
+  template: `<a href="#" (click)="navigateToDetail($event)">Detail Page</a>`,
+})
+export class Navbar {
+  private router = inject(Router);
+  private analytics = inject(AnalyticsLogger);
+
+  navigateToDetail(event: Event) {
+    event.preventDefault();
+    this.analytics.trackEvent('navigation', '/details');
+    this.router.navigate(['/details']);
+  }
+}
+```
+
+## 2.3 Provider Scopes
+
+`providedIn: 'root'` vs `providers: [...]` 
+
+DI system của Angular hoạt động theo cơ chế **Hierarchical Injection** (phân cấp) → tùy thuộc vào nơi khai báo (provide) thì phạm vi hoạt động và vòng đời của Service sẽ khác nhau hoàn toàn.
+
+### `@Injectable({ providedIn: 'root' })`  (Singleton Service)
+
+- Đây là cách khai báo mặc định và được khuyên dùng → Khai báo với Angular rằng Service này thuộc về Root Injector (Tầng cao nhất của ứng dụng)
+- Phạm vi hoạt động toàn hệ thống → chỉ tồn tại DUY NHẤT MỘT Instance (Singleton) của Service này
+- Tree-shacking: nếu cấu hình `providedIn: 'root'`  nhưng trong toàn bộ src code không có nơi nào dùng Service này → Angular compiler tự động loại bỏ (tree-shake) hoàn toàn file Service ra khỏi file build cuối cùng - `bundle.js`
+
+### `providers: [...]`
+
+- Khi đưa Service vào mảng `providers`  của một `@Componnet` → tạo ra injector cục bộ gắn liền với Componnet đó (Element Injector)
+- Phạm hoạt động: mỗi khi Component được mount → Angular tạo ra một instance hoàn toàn mới của Service dành riêng cho Component đó và các Component con của nó
+- Khi Component unmount - ngOnDestroy → instance của Service bị giải phóng khỏi bộ nhớ (Garbage Collected)
+- Khi nào nên dùng: Khi muốn tạo ra các khối xử lý hoàn toàn độc lập, không muốn chia sẻ trạng thái ra bên ngoài
+- VD: 1 Componenet Form nhập liệu có tính năng “Hủy/Hoàn tác” → tạo một `FormStateService`  đưa vào providers của Component đó → user tắt Form → Service tự chết → dọn dẹp bộ nhớ
+
+## 2.4 Modern Injection `inject()`  (Angular 14+)
+
+### Cách cũ - Constructor Injection
+
+```tsx
+@Component({
+	selector: 'app-profile',
+	template: '...'
+})
+export class ProfileComponent implements OnInit {
+	//khai báo tường minh trong constructor()
+	constructor(private userService: UserService) {}
+	
+	ngOnInit(){
+		this.userService.getProfile();
+	}
+}
+```
+
+### Cách mới - Modern `inject()` Function
+
+```tsx
+@Component({
+	selector: 'app-profile',
+	template: `...`,
+	standalone: true //Phổ biến trong kiến trúc Standalone
+})
+
+export class ProfileComponent implements OnInit {
+//Khởi tọa trực tiếp như một attribute của class không cần 
+	private userService = inject(UserService);
+	
+	ngOnInit(){
+		this.userService.getProfile();
+	}
+}
+```
+
+### Tại sao hàm `inject()` ra đời và ưu điểm vượt trội của nó là gì?
+
+1. **Code ngắn gọn, sạch sẽ hơn:** không phải viết một hàm `constructor`  chỉ để khai báo danh sách các Service 
+2. **Hỗ trợ Class Inheritance - kế thừa:** trước đó nếu có một `BaseComponent` chứa 3 services trong constructor, và một `ChildComponent extends BaseComponent`→ `ChildComponent` bắt buộc phải viết lại constructor và gọi hàm `super(service1, service2, service3)`→ `BaseComponent` bổ sung thêm service thứ 4 → ối dồi ôi. Với `inject()`, component con chỉ cần `extends` là tự động kế thừa, hoàn toàn không cần đụng vào `super()`.
+3. **Sử dụng linh hoạt ngoài Class (Functional Ng-gains):** Hàm `inject()` có thể hoạt động bên trong các hàm thuần túy (Functions) chứ không ép buộc phải nằm trong Class như Constructor → của việc viết **Custom Functions / Functional Router Guards / Functional Interceptors** cực kỳ gọn nhẹ.
+    - *Ví dụ:*  Có thể tạo một hàm kiểm tra quyền truy cập Router chỉ bằng 2 dòng code sử dụng `inject(AuthService)` thay vì phải tạo nguyên một Class Guard cồng kềnh như trước đây.
+
+### *Lưu ý:
+
+Hàm `inject()` chỉ có thể được gọi ở nơi mà Angular hiểu được context inject dữ liệu - Inject Context:
+
+- Khi khai báo attribute của Class
+- Bên trong `constructor()`
+- Bên trong các hàm Factory Providers.
+
+*Không thể* gọi `inject()` bên trong các Lifecycle hook muộn như `ngOnInit()` , `ngAfterViewInit()` hay các function xử lý sự kiện click `onClik()` 
+→ hệ thống sẽ báo lỗi `NG203: inject() must be called from an injection context`
