@@ -1,14 +1,7 @@
 import { Component } from '@angular/core';
-
-// Đường dẫn đến 2 components
 import { Navbar } from '../navbar/navbar';
 import { Sidebar } from '../sidebar/sidebar';
-import { Highlight } from '../../../week2/lab2_1/directives/hover-highlight';
-import { DashboardComponent } from '../../../week2/lab2_2/dashboard/dashboard';
-import { ProductList } from '../../../week2/lab2_3/product-list/product-list';
-import { RatingDashboard } from '../../../week2/lab2_4/rating-dashboard/rating-dashboard';
-import { UserProfileContainer } from '../../../week2/lab2_5/user-profile-container/user-profile-container';
-import { ChatContainer } from '../../../week2/lab2_6/chat-container/chat-container';
+import { RouterOutlet } from '@angular/router';
 
 /**
  * Khi Angular biên dịch một Standalone Component (vd: ShellComponent),
@@ -31,16 +24,7 @@ import { ChatContainer } from '../../../week2/lab2_6/chat-container/chat-contain
   selector: 'app-shell',
   standalone: true,
   // Thêm các component vào đây
-  imports: [
-    Navbar,
-    Sidebar,
-    Highlight,
-    DashboardComponent,
-    ProductList,
-    RatingDashboard,
-    UserProfileContainer,
-    ChatContainer,
-  ],
+  imports: [Navbar, Sidebar, RouterOutlet],
   templateUrl: './shell.html',
 })
 export class Shell {}

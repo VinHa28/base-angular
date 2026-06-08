@@ -1,3 +1,61 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+.form-container {
+  @apply max-w-md mx-auto p-6 bg-white rounded-xl shadow-md space-y-6;
+}
+
+.form-group {
+  @apply flex flex-col gap-2;
+}
+
+.form-label {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.form-control {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm
+focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+transition duration-200;
+}
+
+.form-control-error {
+  @apply border-red-500 focus:ring-red-500 focus:border-red-500;
+}
+
+.form-control-success {
+  @apply border-green-500 focus:ring-green-500 focus:border-green-500;
+}
+
+.form-error {
+  @apply text-sm text-red-500;
+}
+
+.btn {
+  @apply px-4 py-2 rounded-lg font-medium transition duration-200;
+}
+
+.btn-primary {
+  @apply bg-blue-500 text-white hover:bg-blue-600;
+}
+
+.btn-secondary {
+  @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+}
+
+.btn-danger {
+  @apply bg-red-500 text-white hover:bg-red-600;
+}
+
+.form-check {
+  @apply flex items-center gap-2;
+}
+
+.form-check-input {
+  @apply w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500;
+}
+
+.form-hint {
+  @apply text-xs text-gray-500;
+}

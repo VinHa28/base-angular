@@ -1,9 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { CartLisst } from './week3/lab3_1/components/cart-list/cart-list';
+import { Shell } from './layout/shell/shell';
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CartLisst],
+  imports: [Shell],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
