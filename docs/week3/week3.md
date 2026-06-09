@@ -389,3 +389,64 @@ Trong template-driven forms, mỗi element được liên kết với 1 **direct
 → change detection done
 → Instance FormControl emits ‘valueChanges’ event → observers
 → ControlValueAccessor cập nhật phần tử input của form
+
+# **4.Reactive Forms (Model-driven Forms)**
+
+## 4.1 Core Building Blocks
+
+Reactive Forms của Angular được xây đựng từ các class core extends từ `AbstractControl` 
+
+- **FormControl:** là phần tử độc lập nhỏ nhất (input, checkbox, select). Quản lý value, validity state, và lịch sử tương tác.
+- **FormGroup:** Là một tập hợp nhóm các phần tử `FormControl` , `FormArray` hoặc `FormGroup` con khác dưới dnajg Object Key-value. Valid state của một `FormGroup` phụ thuộc hoàn toàn vào state của các thành phần bên trong
+- **FormBuilder:** Là một Utility Service giúp devs viết code gọn hơn khi khởi tạo các cấu trúc form lớn thay vì `new FormControl()` hay `new FormGroup()`
+- **NonNullableFormBuilder:** Khi thực hiện  lệnh `form.reset()` , mặc định các form control sẽ bị gán lại giá trị là `null` . Để ngăn chăn điều này và giữ nguyên data type gốc (ví dụ: `‘’` thay vì `null`). `NonNullableFormBuilder` → ép các thuộc tính luôn có giá trị không thể mang giá trị `null`
+
+## 4.2 Form validation & State
+
+#### Built-in Validators:
+
+- `Validators.required` : bắt buộc
+- `Validators.minLength(n)` / `maxLength()` : Giới hạn số lượng ký tự
+- `Validators.parttern(regex)` : Kiểm tra định dạng dữ liệu dựa trên regex
+
+#### State attribute:
+
+- `.valid` : `true`  khi toàn bộ validation rule đều thỏa mãn
+- `.invalid` : `true` khi có bất kỳ validation error nào
+- `.touched` : `true` ngay khi user click vào form control rôi bluer, bất kể có nhập gì hay không. Thường dùng để hiển thị thông báo lỗi sau khi user bỏ qua
+- `.dirty` : `true` khi user đã thực hiện thay đổi giá trị gốc bên trong form control
+- `.errors` : Chứa một đối tượng chứa chi  tiết các error code (VD: `{required: true, minLength: {requiredLength: 5, actuallLength: 2}}`). Thuộc tính này sẽ trả về `null` nểu ô đó hoàn toàn hợp lệ
+
+## 4.3 Dynamic Structures với FormArray
+
+FormArray là class đặc biệt dùng để quản lý 1 danh sách các ô nhập liệu hoặc một mảng các nhóm form có số lượng dòng thay đổi.
+
+- Ứng dụng: làm các tính năng như: Danh sách sdt, form thêm nhiều sản phẩm → mỗi dòng là một FormGroup (gồm tên, số lượng, giá,…).
+- Cơ chế: Khác với `FormGroup`  định danh phần tử con bằn key-value, `FormArray` định danh và quản lý qua index. Cung cấp các built-in methods: `.push()` , `.insert()` , `.removeAt()` , `.clear()`
+
+## 4.4 Custom & Async Validators
+
+Khi các validators có sẵn không đáp ứng được yêu cầu phức tạp → 
+
+1. Synchronous Validator:
+- Là một function nhân vào một `AbstracControl` → kiểm tra dữ liệu ngay trên RAM
+- Trả về `null` nếu dữ liệu valid, hoặc một đối tượng `ValidationErrors` nếu dữ liệu invalid
+- VD: Kiểm tra mật khẩu nhập lại có khớp với mật khẩu ban đầu không?
+2. Asynchronous Validator:
+- Là một function xủ lý các tác vụ cần thời gian chờ (async) → trả về bắt buộc phải bọc trong một `Observable`  hoặc một `Promise` 
+- Khi Async Validator đang chạy, state của Form → ‘PENDING’
+- VD: Kiểm tra Username hoặc Email đã tồn tại trong DB chưa bằng cách call API request để kiểm tra
+
+## 4.5 Reactive Streams
+
+Một trong những điểm vượt trội của Reactive-Forms so với Template-driven Forms là cũng cáp các luồng dữ liệu - Streams dưới dạng **RxJS Observable** để devs lắng nghe các biến động của form trong thời gian thực
+
+A. `valueChanges` :
+
+- Trả ra giá trị với nhất của toàn một form model hay một input đơn lẻ ngay sau khi user vừa gõ bất kỳ ký tự nào hoặc khi có lệnh gán lại giá trị mới
+- Ứng dụng: Auto-completement/Live Search, kết hợ với toán tử RxJS (như `debounceTime` , `distincUntilChanged` , `switchMap` ) → tránh spam API, hoặc Auto-save drafts
+
+B. `statusChanges` :
+
+- Phát ra trạng thái hợp lệ mới nhất dưới dạng string: `VALID` , `INVALID` , `PENDING` (khi Async Validator chạy) hoặc `DISABLE`
+- Ứng dụng: Theo dõi trạng thái Form để tự động log, thay đổi giao diện theo thời gian thực, hiện thị quá trình loading khi có Async Validator, bật/tắt bubtton Submit
