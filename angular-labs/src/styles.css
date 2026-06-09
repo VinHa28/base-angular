@@ -33,7 +33,10 @@ transition duration-200;
 }
 
 .btn {
-  @apply px-4 py-2 rounded-lg font-medium transition duration-200;
+  @apply px-4 py-2 rounded-lg font-medium transition duration-200 cursor-pointer;
+}
+.btn-disable {
+  @apply opacity-75 cursor-not-allowed;
 }
 
 .btn-primary {
