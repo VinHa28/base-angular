@@ -125,3 +125,27 @@ user input vào <innpur>
 - Khác biệt hoàn toàn về Cơ chế hoạt động và kiểu dữ liệu
 - Tối ưu performance → Chạy tất cả Sync Validators trước → tất cả hợp lệ mới chạy tới Async Validators
 - Trạng thái của Form chuyển thành PENDING trong khoảng 2s chờ xử lý bất động bộ
+
+# Lab 3.6
+
+Hãy nêu các bước an toàn để lặp qua danh sách các phần tử của một FormArray ngay trên template HTML bản Angular hiện đại mà không gặp lỗi strict type check.
+
+### Trả lời:
+
+- B1: Tạo 1 Getter trong Component TS để ép kiểu
+
+```tsx
+get workExperiences(): FormArray {
+	return this.cvForm.get('workExperience') as FormArray
+}
+```
+
+- B2: Chỉ lặp qua thuộc tính `.controls`  của getter đó, không trực tiếp lặp qua đối tượng FormArray
+
+```tsx
+@for (experience của workExperiences.controls; track experience; let i = $index) { ... }
+```
+
+- B3: Ép kiểu mảng trong cấu trúc lặp:
+- môi phần tử `experience`  lấy ra từ vòng lặp thực tế có kiểu là `AbstractControl` → đảm bảo HTML hiểu đây là một cụm Group → bắt buộc phải bọc toàn khối đó trong `[formGroupName]='i'` 
+- Nhờ có thuộc tính `[formGroupName]="i"` → Angular sẽ tự động ánh xạ phần tử thứ `i` trong mảng thành một `FormGroup` →  thoải mái dùng thuộc tính `formControlName` (như `companyName`, `duration`) ở bên trong mà không gặp lỗi strict type check.

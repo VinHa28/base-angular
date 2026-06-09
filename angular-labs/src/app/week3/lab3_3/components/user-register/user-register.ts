@@ -1,11 +1,16 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { matchPasswordValidator, noWhitespaceValidator, usernameExistsValidator } from '../../validators/validators';
+import {
+  matchPasswordValidator,
+  noWhitespaceValidator,
+  usernameExistsValidator,
+} from '../../validators/validators';
 
 @Component({
   selector: 'app-user-register',
   imports: [ReactiveFormsModule],
   templateUrl: './user-register.html',
+  styleUrl: './user-register.css',
 })
 export class UserRegister {
   private formBuilder = inject(FormBuilder);

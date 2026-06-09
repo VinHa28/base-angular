@@ -1,0 +1,93 @@
+<form class="form-container" [formGroup]="cvForm" (ngSubmit)="onSubmit()">
+  <h2 class="form-title">Tạo hồ sơ xin việc - CV builder</h2>
+  <p class="form-subtitle">Vui lòng điền đầy đủ thông tin</p>
+
+  <div class="form-group">
+    <label for="fullname" class="form-label">Họ và tên:</label>
+    <input
+      type="text"
+      name="fullname"
+      placeholder="Nhập họ và tên"
+      id="fullname"
+      class="form-control"
+      formControlName="fullName"
+      [class.is-invalid]="isInvalid('fullName')"
+    />
+    @if (cvF['fullName'].errors?.['required'] && cvF['fullName'].touched) {
+      <p class="form-error">Họ và tên là bắt buộc!</p>
+    }
+  </div>
+  <div class="form-group" formArrayName="workExperiences">
+    <div class="flex items-center gap-2">
+      <h4 class="font-bold text-[18px]">Kinh nghiệm làm việc</h4>
+      <button
+        (click)="addExperience()"
+        type="button"
+        class="w-5 translate-y-[2px] h-5 flex items-center justify-center bg-amber-400 rounded-sm text-white hover:opacity-80 cursor-pointer"
+      >
+        <span class="block mb-[3px]">+</span>
+      </button>
+    </div>
+
+    @for (experience of workExperiences.controls; track experience; let i = $index) {
+      <div class="from-group" [formGroupName]="i">
+        <div class="flex gap-2 items-center">
+          <h5 class="font-semibold text-[18px]">Kinh nghiệm #{{ i + 1 }}</h5>
+          <button
+            (click)="removeExperience(i)"
+            type="button"
+            class="text-red-400 flex items-center justify-center mt-0.5 p-[2px] text-[18px] cursor-pointer"
+            title="Xóa dòng này"
+          >
+            <mat-icon style="font-size: inherit; width: 100%; height: 100%">delete</mat-icon>
+          </button>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Tên công ty: </label>
+            <input
+              type="text"
+              placeholder="VD: Evotek"
+              class="form-control"
+              formControlName="companyName"
+              [class.is-invalid]="isInvalidArray(i, 'companyName')"
+            />
+            @if (isInvalidArray(i, 'companyName')) {
+              <p class="form-error">Tên công ty là bắt buộc!</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Thời gian làm việc:</label>
+            <input
+              type="text"
+              placeholder="VD: 05/2026 - Hiện tại"
+              class="form-control"
+              formControlName="duration"
+              [class.is-invalid]="isInvalidArray(i, 'duration')"
+            />
+            @if (isInvalidArray(i, 'duration')) {
+              <p class="form-error">Thời gian làm việc là bắt buộc!</p>
+            }
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mô tả công việc</label>
+          <textarea
+            formControlName="description"
+            class="form-textarea"
+            placeholder="Ví dụ: Lập trình Angular..."
+            [class.is-invalid]="isInvalidArray(i, 'description')"
+          ></textarea>
+          @if (isInvalidArray(i, 'description')) {
+            <p class="form-error">Mô tả công việc là bắt buộc!</p>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn-primary">Lưu CV</button>
+  </div>
+</form>
