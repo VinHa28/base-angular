@@ -107,3 +107,21 @@ VD: `fullName:['', [noWhitespaceValidator]]`  | Gắn trong thuộc tính valida
 VD: `formBuilder.group({...}), {validators: matchPasswordValidator}` |
 | Cách truy xuất dữ liệu trong hàm | sử dụng `control.value` để lấy giá trị  | sử dụng `control.get('ten_control)` để trỏ xuống các thành phần con → lấy giá trị `control.get('pasword')?.value` |
 | Tác động của error state | `ValidationErrors` nếu có sẽ đẩy trực tiếp vòa `.errors` của chính `FormControl` → input đó `invalid`  | Lỗi nằm ở `FormGorup` → toàn bộ Form bị `invalid` . Để hiển thị lỗi ở từng ô inpu → can thiệp thủ công: `confirmPassword.setErrors(...)` |
+
+# Lab 3.5
+
+Tại sao Angular lại tách biệt cấu hình giữa Async Validator và Validator đồng bộ thông thường? Trạng thái .status của Form sẽ chuyển thành chữ gì trong suốt khoảng thời gian 2 giây chờ xử lý bất đồng bộ đó?
+
+### Trả lời:
+
+- Cơ chế hoạt động:
+user input vào <innpur>
+→ lắng nghe bất đồng bộ `valueChanges()` 
+→ chạy các Sync Validators
+→ pass tất cả Sync Validators
+→ kích hoạt Async Validator → status = ‘’PENDING’
+→ VALID or INVALID and tắt PENDING
+- Cần tách Sync Validator và Async Validator:
+- Khác biệt hoàn toàn về Cơ chế hoạt động và kiểu dữ liệu
+- Tối ưu performance → Chạy tất cả Sync Validators trước → tất cả hợp lệ mới chạy tới Async Validators
+- Trạng thái của Form chuyển thành PENDING trong khoảng 2s chờ xử lý bất động bộ

@@ -36,18 +36,21 @@ export const matchPasswordValidator: ValidatorFn = (
 };
 
 export function usernameExistsValidator(): AsyncValidatorFn {
+  // 1 Async Validator bắt buộc phải trả về một hàm nhận vào một control
+  // và trả về 1 Observable hoặc một Promise
   return (control: AbstractControl): Observable<ValidationErrors | null> => {
-    if (!control.value) return of(null);
+    //Hàm này trả về Observable phát ra giá trị là VadiationErrors hoặc null - nếu khồn có lỗi validation
+    if (!control.value) return of(null); // operator of() -> tạo một Observable phát ra null
 
-    return of(control.value).pipe(
-      delay(2000), // Hoãn lại 2 giây để giả lập mạng chậm
-      map((username) => {
+    return of(control.value).pipe( // biến giá trị control.value -> observable | pipe
+      delay(2000), // delay 2s sau khi user dừng gõ
+      map((username) => { // biến đổi dữ liệu
         const usernameLower = username.trim().toLowerCase();
-        // Nếu người dùng nhập vào 'admin' hoặc 'root'
+
         if (usernameLower === 'admin' || usernameLower === 'root') {
-          return { usernameExists: true }; // Trả về object lỗi
+          return { usernameExists: true }; 
         }
-        return null; // Hợp lệ
+        return null;
       }),
     );
   };
