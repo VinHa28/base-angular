@@ -149,3 +149,23 @@ get workExperiences(): FormArray {
 - B3: Ép kiểu mảng trong cấu trúc lặp:
 - môi phần tử `experience`  lấy ra từ vòng lặp thực tế có kiểu là `AbstractControl` → đảm bảo HTML hiểu đây là một cụm Group → bắt buộc phải bọc toàn khối đó trong `[formGroupName]='i'` 
 - Nhờ có thuộc tính `[formGroupName]="i"` → Angular sẽ tự động ánh xạ phần tử thứ `i` trong mảng thành một `FormGroup` →  thoải mái dùng thuộc tính `formControlName` (như `companyName`, `duration`) ở bên trong mà không gặp lỗi strict type check.
+
+# Lab 3.7
+
+Nếu bạn thực hiện lệnh `this.form.patchValue(...)`để sửa dữ liệu của form ngay bên trong hàm đang lắng nghe sự kiện `valueChanges` của chính form đó, điều nguy hiểm gì sẽ xảy ra? Làm thế nào để cấu hình chặn hiện tượng đó lại? (Gợi ý: Tìm hiểu tham số { emitEvent: false }).
+
+### Trả lời:
+
+- Nếu gọi `patchValue()` hoặc `setValue()` → “Dữ liệu form vừa đổi đấy”:
+User thay đổi trong input → `valueChanges` → `.subcribe()` → thực thi code bên trong →`this.form.patchValue()` hoặc `setValue()`  → `valueChages`  → `.subscribe()` …
+Cuối cùng ra lỗi `Maximun call stack size exceeded`
+- Sử dụng: `{ emitEvent: false }` 
+→ ‘Hãy cập nhật giá trị mới này một cách lặng lẽ, cấm có phát tín hiệu qua luồng `valueChanges` ”
+
+```tsx
+this.form.valueChanges.subscribe(value => {
+  this.form.patchValue({
+    amount: 100 
+  }, { emitEvent: false });
+});
+```
