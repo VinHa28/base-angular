@@ -450,3 +450,229 @@ B. `statusChanges` :
 
 - Phát ra trạng thái hợp lệ mới nhất dưới dạng string: `VALID` , `INVALID` , `PENDING` (khi Async Validator chạy) hoặc `DISABLE`
 - Ứng dụng: Theo dõi trạng thái Form để tự động log, thay đổi giao diện theo thời gian thực, hiện thị quá trình loading khi có Async Validator, bật/tắt bubtton Submit
+
+# RxJS
+
+**Reactive Extensions for JavaScrip** là một thư viện JS dùng để xử lý Asynchronous và các events dựa trên khái niệm luồng dữ liệu - Streams bằng cách sử dụng các `Observable`
+
+## Observable
+
+“Dòng chảy dữ liệu” theo thời gian. Observable có đặc tính *Lazy* khi khoong cos ai `subscribe`  → Obserable không bao giờ chạy và không phát ra bất kỳ dữ liệu nào.
+
+Khi gọi `subscribe()` (kiểu bật tivi) → Observable bắt đầu hoạt động và có thể gửi 3 loại tín hiệu:
+
+- Next (dữ liệu): phát ra 1 giá trị mới (một số, object, promise, event, click chuột)
+- Error: Phát ra thông báo khi luồng gặp sự cố → luồng bị hủy ngay lập tức
+- Complete: Phát ra thông báo luồng đã chạy xong thành công → kết thúc hoàn toàn
+
+VD1: Tạo Observable thủ công
+
+```tsx
+import {Observable} from 'rxjs'
+//Define an Observable:
+const water = new Observable(subscriber => {
+	subscriber.next('water drop 1');
+	subscriber.next('water drop 2');
+	
+	//Gia lap sau 1 giay tiep giot thu 3 roi stop
+	setTimeout(() => {
+		subscriber.next('water drop 3');
+		subscriber.complete(); //Ket thuc
+	}, 1000)
+})
+
+water.subscribe({
+	next: (drop) => console.log('Drink: ', drop),
+	error: (erro) => console.log('There are stones! error: ', error),
+	complete: () => console.log('out of water')
+})
+```
+
+VD2: Oservable thực tế trong Angular (`HttpClient`)
+
+```tsx
+//when get() method is called it returns an Observable
+this.http.get('https://example.com').subscribe({
+	next: (data) => this.users = data,
+	error: (err) => console.error(error),
+	complete: () => this.isLoanding = false,
+})
+```
+
+So sánh Observable với Promise:
+
+|  | Promise | Observable |
+| --- | --- | --- |
+| Number of data  | only 1 value | có thể nhiều giá trị liên tiếp theo thời gian |
+| Cơ chế kích hoạt | Chạy ngay lập tức khi được kích hoạt - Eager | Chỉ lạy khi có `subscribe` - Layzy |
+| Khản năng hủy bỏ | Không thể hủy khi đã gọi | Có thể hủy bằng `unsubscribe()`  |
+| Toán tử hỗ trợ | Rất ít `.then()` , `.catch()`  | `map()` , `filter` , `switchMap` ,… |
+
+## Operators
+
+### 1. Transformation Operators
+
+- `map` : giống `Array.prorotype.map`
+- `scan` :giống `Array.protorype.reduce`
+
+### 2. Filtering Operators
+
+- `filter` : chỉ cho phép các value thỏa mãn điều kiện đi qua
+VD: chỉ lấy các sỗ chẵn,…
+- `debounceTime` : Hoãn phát dữ liệu cho đến khi “im lặng”  1 khoảng thời 
+VD: chờ người dùng dừng gõ đúng 300ms rồi mới thực hiện tìm kiếm
+- `distincUnitChanged:` chỉ phát ra giá trị nếu nó khác với giá trị ngay trước đó
+- `take` : Chỉ lấy đúng N giá trị đầu tiên rồi tự động complete
+- `takeUnit` : Tiếp tục phát dữ liệu cho đến khi một Observable phụ khác phát ra tín hiệu thì dừng lại (Thường để tự động unsubscribe khi Component unmount)
+
+### 3. Flattening Operators
+
+khi muốn lấy dữ liệu từ 1 luồng → dùng dữ liệu đó để chạy một luồng async khác → nhóm operators này giúp tránh bị lồng hàm subscribe (kiểu Callback Hell)
+
+- `switchMap`  → giá trị mới đến → hủy ngay lập tức async request cũ → request mới
+- `mergeMap` : Chạy song song các request cùng lúc, cái nào xong trước trả về trước
+- `concatMap` : Chạy tuần tự, request trước phải `complete`  → request sau
+- `exhaustMap` : Chặn tất cả các giá trị mới nếu request cũ chưa chạy xong → Chặn user spam submit
+
+### 4. Combination Operators
+
+- `forkJoin` : Đợi tất cả các Observable complete → trả về 1 mảng kết quả (giống `Promise.all()`) → kiểu gọi API cùng lúc khi nào 3 API trả kết quả mới hiển thị
+- `combineLatest` : bất cứ khi nào thêm một luồng phát giá trị mới → lấy giá trị mới nhất của tất cả các luồng gộp lại → 1 mảng và phát ra giá trị
+- `whitLatestFrom` : Luồng chính phát dữ liệu → đồng thời “tiện” lấy thêm ra trị mới nhất ở một luồn phụ
+
+### 5. Utility & Error Handling
+
+- `tap` : thực hiện side-effect như `console.log` , bật tắt loading,…
+- `catchError`
+- `retry(n)` : nếu luồng bị lỗi → tự độn tực hiện thêm `n` lần nữa
+
+### `pip()`
+
+`pip` = pipline - đường ống dùng để gom các operators lại với nhau
+
+```tsx
+//Không dùng pipe()
+myObservable.map(x => x + 2).filer(x => x > 10).subscribe(...)
+```
+
+→ bắt buộc toàn bộ các operators của RxJS phải tải vào application → nặng web
+
+Cách thức hoạt động:
+
+- nguồn dữ liệu thô → pipe(filter + map + tap) → dữ liệu → `.subscribe()`
+
+VD:
+
+```tsx
+import {of} from 'rxjs';
+import {filter, map, tap} from 'rxjs/operators';
+
+const number$ = of(1, 2, 3, 4, 5);
+
+number$.pipe(
+	filter(x => x % 2 === 0),
+	map(x => x* 10),
+	tap(x => console.log('Data throw over pipe: ', x))
+).subscribe(result => {
+	console.log('Result: ', result);//20 and 40
+})
+```
+
+## Operation Operators
+
+Được sử dụng để tạo ra `Observable`  mới từ nguồn data khác nhau như: một premitive type, array, object, Promise, DOM event hay một khoảng thời gian.
+
+### 1. Tạo Observable từ data có sẵn (`of` ,`from` )
+
+`of(...args)` 
+
+- Nhạn vào một chuỗi các đối số và phát ra nguyên vẹn từng đối số đó theo thứ tự → `complete`
+
+```tsx
+import {of} form 'rxjs';
+
+const source$ = of(1, 2, 3, [4, 5]);
+source$.subscribe(val => console.log(val));
+// 1
+// 2
+// 3
+// [4, 5] 
+```
+
+`from(iterable | promise)` 
+
+- Convert một cấu trúc dữ liệu có thể duyệt (Array, Iterable, Map, Set) hoặc một Promise → Observable. Nếu truyền vào mảng → từng phần tử
+
+```tsx
+import {from} from 'rxjs'
+
+const array$ = from([10, 20, 30]);
+array$.subscribe(val => console.log(val));
+//10
+//20
+//30
+const promis$ = from(fetch('https://api/...');
+promise$.subscribe(res => console.log("Da nhan phan hoi API"));
+```
+
+### 2. Tạo Observable dựa trên thời gian (`interval` , `timer`)
+
+`inerval(period)` 
+
+- Phát ra một chuỗi số tăng dần (0, 1, 2, 3, …) sau mỗi `period` (tính bằng miliseconds). Chạy vô hạn cho đến khi `unsubscribe`
+
+```tsx
+import {interval} from 'rxjs'
+
+const ticks$ = interval(1000);
+const sub = ticks$.subscribe(val => console.log());
+```
+
+`timer(delay, period?)` 
+
+- Chờ một khoảng `delay` → phát ra giá trị đầu tiên 0. Nếu có `period`  → tăng lên sau mỗi `period`  tương tự như `interval`
+
+```tsx
+import {timer} from 'rxjs'
+
+const delay$ = timer(3000);
+delay$.subscribe(()=>console.log('Out of 3 seconds'))
+```
+
+### 3. Tạo Observable từ DOM Event (`fromEvent`)
+
+`formEvent(target, eventName)`
+
+- Listen các events từ một DOM element, `document` hoặc `window` và chuyển các sự kiện đó thành 1 dòng dữ liệu liên tục
+
+```tsx
+//Ví dự chống spam click
+import {fromEvent} from 'rxjs'
+
+const button = document.querrySelector('#myButton');
+const click$ = fromEvent(button, 'click');
+
+click$.subscribe(event => console.log('User clicked on the button!',event))
+
+```
+
+### 4. Tạo Observable trống hoặc erro(`empty` , `never` `throwError`)
+
+### 5. `Observable` constructor
+
+```tsx
+import {Observable} from 'rxjs'
+
+const checkUsername$ = new Observable<string>( (subscriber) => {
+	subscriber.next('Checking...');
+	const timeoutId = setTimeout(() => {
+		subscriber.next('Username is valid!');
+		subscriber.somplete();
+	},2000);
+})
+
+checkUsername$.subscribe({
+	next: val => console.log(val),
+	complete: () => console.log('Checking complete!)
+})
+```
