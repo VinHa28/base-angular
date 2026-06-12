@@ -76,3 +76,12 @@ const mockProductService = {
 - Từ đây nếu gõ ‘app’ sau đó đợi 400ms và gõ thêm ‘le’ (apple) → kết quả sẽ là apple nhưng sau đó sẽ nhảy ngược lại là app.
 
 → Kết quả bị hỗn loạn kết quả phụ thuộc vào request nào xong cuối cùng chứ không phải từ khóa user cần tìm
+
+# Lab 4.2
+
+Câu hỏi: Điểm yếu lớn nhất của toán tử `forkJoin` là gì nếu 1 trong 3 request gặp lỗi? Giải pháp khắc phục là gì?
+
+### Trả lời:
+
+1. Điểm yếu của `forkJoin` : cơ chế “All-or-Nothing” - Được hết hoặc không được gì. Nếu bất kỳ 1 Observable nào nhận lỗi → toàn bộ luồng `forkJoin` bị cancel ngay lập tức → lỗi. Dù 2 request kia thành công nhưng 1 thằng chết → chết hết
+2. Giải pháp: phải catch error bằng `catchError` , trong mỗi API call, thêm `cathError(()=>of(null));` → khi 1 api bị lỗi → nó trả về null → `forkJoin` vẫn đợi 2 thằng kia chạy xong rồi trả về kết quả hợp lệ + null

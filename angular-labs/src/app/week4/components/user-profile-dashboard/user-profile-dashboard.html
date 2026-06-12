@@ -1,1 +1,54 @@
-<p>user-profile-dashboard works!</p>
+<div>
+  <button
+    (click)="loadDashboardData()"
+    class="mt-5 bg-blue-400 py-2 px-2.5 text-white rounded-lg cursor-pointer"
+    type="button"
+  >
+    Refresh
+  </button>
+  @if (isLoading()) {
+    <div class="mt-5 flex flex-col items-center gap-2.5">
+      <div
+        class="w-[50px] h-[50px] rounded-full border-2 border-b-0 border-r-0 border-blue-400 animate-spin"
+      ></div>
+      <span>loading....</span>
+    </div>
+  } @else {
+    <div class="dashboard-container">
+      <section>
+        <h2 class="font-semibold">Thông tin cá nhân</h2>
+        @if (userData && userData.profile) {
+          <p>Tên: {{ userData.profile.name }}</p>
+          <p>Email: {{ userData.profile.email }}</p>
+        } @else {
+          <p class="text-red-500">Không tải được thông tin cá nhân</p>
+        }
+      </section>
+
+      <section>
+        <h2 class="font-semibold">Danh sách đơn hàng</h2>
+        @if (userData && userData.orders) {
+          <ul class="list-disc">
+            @for (order of userData.orders; track order.orderId) {
+              <li>Đơn: {{ order.orderId }} - Tổng: {{ order.total }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="text-red-500">Không tải được giỏ hàng</p>
+        }
+      </section>
+
+      <section>
+        <h2 class="font-semibold">Cài đặt</h2>
+        @if (userData && userData.settings) {
+          <ul class="list-disc">
+            <li>Chủ đề: {{ userData.settings.theme }}</li>
+            <li>Thông báo: {{ userData.settings.notifications ? 'Bật' : 'Tắt' }}</li>
+          </ul>
+        } @else {
+          <p class="text-red-500">Không tải được settings</p>
+        }
+      </section>
+    </div>
+  }
+</div>
