@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { Week1 } from './week1/week1';
 import { Week2 } from './week2/week2';
 import { Week3 } from './week3/week3';
-import { Week4 } from './week4/week4/week4';
+import { Week4 } from './week4/week4';
 
 export const routes: Routes = [
   { path: '', component: Week1 },
