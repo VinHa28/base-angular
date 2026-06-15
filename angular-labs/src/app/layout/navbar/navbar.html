@@ -3,7 +3,22 @@
     <h1 class="text-xl font-bold">My Angular App</h1>
 
     <div class="flex gap-5">
-      <button (click)="fetchData()" class="bg-amber-400 py-2 px-4 rounded-xl hover:opacity-85 cursor-pointer">
+      <button
+        (click)="getError500()"
+        class="bg-amber-400 py-2 px-4 rounded-xl hover:opacity-85 cursor-pointer"
+      >
+        Test lỗi 500
+      </button>
+      <button
+        (click)="getError401()"
+        class="bg-amber-400 py-2 px-4 rounded-xl hover:opacity-85 cursor-pointer"
+      >
+        Test lỗi 401
+      </button>
+      <button
+        (click)="fetchData()"
+        class="bg-amber-400 py-2 px-4 rounded-xl hover:opacity-85 cursor-pointer"
+      >
         Test lab 4.3
       </button>
       <span class="text-sm">Hà Văn Vinh</span>

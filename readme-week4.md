@@ -101,3 +101,20 @@ Câu hỏi: Tại sao đối tượng req (HttpRequest) trong Interceptor lại 
 - Hàm `.clone()` tạo một shallow coppy của request cũ (coppy nông)
 - Đồng thời tiếp nhân các thuộc tính mới để ghi đè lên bản sao đó
 → một đối tượng `HttpRequest hoàn toàn mới clonedReq` → đây tiếp vào `next(clonedReq)`
+
+# Lab 4.4
+
+Câu hỏi: Sau khi đã xử lý Error Handler trong Interceptor, nếu muốn Component gọi API vẫn có thể tự bắt thêm lỗi riêng của nó, cần dùng lệnh gì ở cuối hàm catchError của Interceptor? (Gợi ý: Tìm hiểu lớp throwError)
+
+### Trả lời:
+
+Tại cuối hàm `catchError`  của Interceptor, chúng ta bắt buộc phải sử dụng lệnh:
+
+```tsx
+return throwError(()=>error);
+```
+
+Cách hoạt động:
+
+1. **`catchError`:** Khi một lỗi HTTP phát sinh → Khi dùng `catchError`, nó sẽ "bắt" lấy lỗi đó để xử lý các tác vụ chung (như bật Alert, chuyển trang). Tuy nhiên, nếu chỉ xử lý tập trung xong rồi `return` một giá trị thông thường (hoặc không return gì cả), RxJS sẽ hiểu là lỗi này **đã được sửa chữa/giải quyết hoàn toàn** → (Success stream). Điều này khiến `.subscribe({ error: ... })` ở Component **không bao giờ chạy trúng**, thay vào đó nhánh `next:` sẽ bị kích hoạt với giá trị trống rỗng, gây ra sai lệch về logic hiển thị ở giao diện.
+2. Vai trò của `throwError` : Hàm này nhận vào một factory function return 1 đối tượng hiện tại. `return throwError(()=>eror)` → tiếp tục truyền lỗi đi
