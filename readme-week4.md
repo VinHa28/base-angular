@@ -85,3 +85,19 @@ Câu hỏi: Điểm yếu lớn nhất của toán tử `forkJoin` là gì nếu
 
 1. Điểm yếu của `forkJoin` : cơ chế “All-or-Nothing” - Được hết hoặc không được gì. Nếu bất kỳ 1 Observable nào nhận lỗi → toàn bộ luồng `forkJoin` bị cancel ngay lập tức → lỗi. Dù 2 request kia thành công nhưng 1 thằng chết → chết hết
 2. Giải pháp: phải catch error bằng `catchError` , trong mỗi API call, thêm `cathError(()=>of(null));` → khi 1 api bị lỗi → nó trả về null → `forkJoin` vẫn đợi 2 thằng kia chạy xong rồi trả về kết quả hợp lệ + null
+
+
+# Lab 4.3
+
+Câu hỏi: Tại sao đối tượng req (HttpRequest) trong Interceptor lại là một đối tượng bất biến (Immutable)? Tại sao chúng ta không thể viết trực tiếp req.headers.set(...) mà bắt buộc phải dùng hàm .clone()?
+
+### Trả lời:
+
+1. Đảm bảo tính nhất quán và an toàn lường dữ liệu - Thread Safty & Predictability:
+- Một request có thể đi qua nhiều Interceptors khác nhau → nếu Angular cho phép sửa trực tiếp đối tượng `req`  → một Interceptor đứng trước có thể làm sai dữ liệu quan trọng mà cac Interceptors sau đang cần.
+2. Cơ chế hoạt động của `req.headers.set()` thực tế không thay đổi đối tượng cũ:
+- hàm `.set()`  tạo ra một instance mới của `HttpHeaders` → nếu dùng `.set()` thì đối tượng `req` sẽ giữnguyên các headers cũ còn header mới sinh ra → Garbage Collector thu hồi vì không có biến nào nhận giá trị
+3. Bắt buộc dùng `.clone()`  để kiểm soát sự thay đổi:
+- Hàm `.clone()` tạo một shallow coppy của request cũ (coppy nông)
+- Đồng thời tiếp nhân các thuộc tính mới để ghi đè lên bản sao đó
+→ một đối tượng `HttpRequest hoàn toàn mới clonedReq` → đây tiếp vào `next(clonedReq)`
